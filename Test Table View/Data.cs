@@ -104,7 +104,7 @@ namespace Model
         {
             return doctors[d1].dep == doctors[d2].dep;
         }
-
+        // cmt
         public List<int> Freeman(Time t)
         {
             var d = from doc in doctors
