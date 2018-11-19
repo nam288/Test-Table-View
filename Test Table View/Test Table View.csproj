@@ -47,6 +47,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BinarySerialization.cs" />
+    <Compile Include="ComboBoxCustom.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Data.cs" />
     <Compile Include="Department.cs" />
     <Compile Include="Doctor.cs" />

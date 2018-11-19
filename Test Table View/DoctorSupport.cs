@@ -19,48 +19,7 @@ namespace Model
             return string.Format("{0,-15}{1,-15}{2,-15}", name, isPermanent, value);
         }
     }
-    [Serializable]
-    public class PreferTime
-    {
-        public static readonly string name = "Prefer";
-        public bool isPermanent;
-        public Time time;
-        public PreferTime(Time s, bool per = true)
-        {
-            time = s;
-            isPermanent = per;
-        }
-        public PreferTime(Random rand)
-        {
-            isPermanent = Convert.ToBoolean(rand.Next(2));
-            time = new Time(rand);
-        }
-        public override string ToString()
-        {
-            return string.Format("{0,-15}{1,-15}{2,-15}", name, isPermanent, time);
-        }
-
-        public override bool Equals(object obj)
-        {
-            return Equals(obj as PreferTime);
-        }
-
-        public bool Equals(PreferTime t)
-        {
-            if (ReferenceEquals(t, null))
-                return false;
-
-            if (ReferenceEquals(this, t))
-                return true;
-
-            return (t.isPermanent == isPermanent) && t.time.Equals(time);
-        }
-
-        public override int GetHashCode()
-        {
-            return time.GetHashCode() * 2 + Convert.ToInt16(isPermanent);
-        }
-    }
+    
     [Serializable]
     public class MaxWorking
     {
@@ -77,58 +36,151 @@ namespace Model
             return string.Format("{0,15}{1,15}{2,15}", name, isPermanent, value);
         }
     }
-
     [Serializable]
-    public class BusyTime: IEquatable<BusyTime>
+    public class TimeConstraint: IEquatable<TimeConstraint>
     {
-        public static readonly string name = "Busy";
-        public bool isPermanent;
+        public readonly string name;
+        public bool isPermanent, isBusy;
         public Time time;
-
-        public BusyTime(Time s, bool p = true)
+        public TimeConstraint(bool isBusy, bool isPermanent, Time time)
         {
-            isPermanent = p;
-            time = s;
+            this.isBusy = isBusy;
+            this.isPermanent = isPermanent;
+            this.time = time;
+            name = isBusy == true ? "Busy" : "Prefer";
         }
-
-        public BusyTime(Random rand)
+        public TimeConstraint(Random rand)
         {
+            isBusy = Convert.ToBoolean(rand.Next(2));
             isPermanent = Convert.ToBoolean(rand.Next(2));
             time = new Time(rand);
+            name = isBusy == true ? "Busy" : "Prefer";
         }
-
+        public override string ToString()
+        {
+            return string.Format("{0,-15}{1,-15}{2,-15}", name, isPermanent, time);
+        }
         public override bool Equals(object obj)
         {
-            return Equals(obj as BusyTime);
+            return Equals(obj as TimeConstraint);
         }
-        
-        public bool Equals(BusyTime t)
+        public bool Equals(TimeConstraint t)
         {
-            if (ReferenceEquals(t, null))
+            if (t is null)
                 return false;
 
             if (ReferenceEquals(this, t))
                 return true;
 
-            return (t.isPermanent == isPermanent) && t.time.Equals(time);
+            return (t.isPermanent == isPermanent) && 
+                (t.isBusy == isBusy) && t.time.Equals(time);
         }
-
         public override int GetHashCode()
         {
-            return time.GetHashCode() * 2 + Convert.ToInt16(isPermanent);
-        }
-
-        public override string ToString()
-        {
-            return string.Format("{0,-15}{1,-15}{2,-15}", name, isPermanent, time);
+            return time.GetHashCode() * 4 + Convert.ToInt16(isPermanent) * 2 
+                + Convert.ToInt16(isBusy);
         }
     }
+
+    //[Serializable]
+    //public class PreferTime
+    //{
+    //    public static readonly string name = "Prefer";
+    //    public bool isPermanent;
+    //    public Time time;
+    //    public PreferTime(Time s, bool per = true)
+    //    {
+    //        time = s;
+    //        isPermanent = per;
+    //    }
+    //    public PreferTime(Random rand)
+    //    {
+    //        isPermanent = Convert.ToBoolean(rand.Next(2));
+    //        time = new Time(rand);
+    //    }
+    //    public override string ToString()
+    //    {
+    //        return string.Format("{0,-15}{1,-15}{2,-15}", name, isPermanent, time);
+    //    }
+
+    //    public override bool Equals(object obj)
+    //    {
+    //        return Equals(obj as PreferTime);
+    //    }
+
+    //    public bool Equals(PreferTime t)
+    //    {
+    //        if (ReferenceEquals(t, null))
+    //            return false;
+
+    //        if (ReferenceEquals(this, t))
+    //            return true;
+
+    //        return (t.isPermanent == isPermanent) && t.time.Equals(time);
+    //    }
+
+    //    public override int GetHashCode()
+    //    {
+    //        return time.GetHashCode() * 2 + Convert.ToInt16(isPermanent);
+    //    }
+    //}
+
+    //[Serializable]
+    //public class BusyTime: IEquatable<BusyTime>
+    //{
+    //    public static readonly string name = "Busy";
+    //    public bool isPermanent;
+    //    public Time time;
+
+    //    public BusyTime(Time s, bool p = true)
+    //    {
+    //        isPermanent = p;
+    //        time = s;
+    //    }
+
+    //    public BusyTime(Random rand)
+    //    {
+    //        isPermanent = Convert.ToBoolean(rand.Next(2));
+    //        time = new Time(rand);
+    //    }
+
+    //    public override bool Equals(object obj)
+    //    {
+    //        return Equals(obj as BusyTime);
+    //    }
+        
+    //    public bool Equals(BusyTime t)
+    //    {
+    //        if (ReferenceEquals(t, null))
+    //            return false;
+
+    //        if (ReferenceEquals(this, t))
+    //            return true;
+
+    //        return (t.isPermanent == isPermanent) && t.time.Equals(time);
+    //    }
+
+    //    public override int GetHashCode()
+    //    {
+    //        return time.GetHashCode() * 2 + Convert.ToInt16(isPermanent);
+    //    }
+
+    //    public override string ToString()
+    //    {
+    //        return string.Format("{0,-15}{1,-15}{2,-15}", name, isPermanent, time);
+    //    }
+    //}
 
     [Serializable]
     public class Time: IEquatable<Time>
     {
         public static readonly string[] weekdays = { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };
         public int date, part; //0- morning, 1-afternoon;
+
+        public static bool IsWorkingTime(int date)
+        {
+            return (date >= 1 && date <= 5);
+        }
 
         public Time(int d, int p)
         {
@@ -154,7 +206,7 @@ namespace Model
             return new Time(rand.Next(5) + 1, rand.Next(2));
         }
 
-        public static List<Time> AllTime()
+        public static List<Time> AllWorkingTime()
         {
             List<Time> res = new List<Time>();
             for (int i = 1; i <= 5; i++)

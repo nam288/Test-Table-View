@@ -18,7 +18,7 @@ namespace Test_Table_View
             Random random = new Random();
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            var form = new Form1();
+            var form = new CustomForm();
             Application.Run(form);
 
         }

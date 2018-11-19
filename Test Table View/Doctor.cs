@@ -13,8 +13,8 @@ namespace Model
         public string name, dep;
         public int maxWorking = 3, maxWorkingPref = 3, index;
         public List<Shift> shifts = new List<Shift>();
-        public List<BusyTime> busies = new List<BusyTime>();
-        public List<PreferTime> prefers = new List<PreferTime>();
+        public List<TimeConstraint> constraints = new List<TimeConstraint>();
+        
         public List<Operation> operations = new List<Operation>();
 
         public int[,] Timeline { get; set; } = new int[7, 2];
@@ -25,14 +25,12 @@ namespace Model
             this.index = index;
             string chars = "ABCDEFGH";
             name = chars.ElementAt(rand.Next(8)).ToString() + rand.Next(10).ToString();
-            dep = chars.ElementAt(rand.Next(8)).ToString();
+            dep = name[0].ToString();
             AddConstraint(new MaxWorking(rand.Next(4)+1));
             AddConstraint(new PreferMaxWorking(rand.Next(3)+1));
-            for (int i = 0; i<3; i++)
-                AddConstraint(new BusyTime(rand));
+            for (int i = 0; i<6; i++)
+                AddConstraint(new TimeConstraint(rand));
 
-            for (int i = 0; i<3; i++)
-                AddConstraint(new PreferTime(rand));
         }
 
         public Doctor(string name, string dept)
@@ -61,15 +59,9 @@ namespace Model
             set => this[new Time(date, part)] = value;
         }
 
-        public void AddConstraint(BusyTime c)
+        public void AddConstraint(TimeConstraint c)
         {
-            busies.Add(c);
-            CalculateTimeline();
-        }
-
-        public void AddConstraint(PreferTime c)
-        {
-            prefers.Add(c);
+            constraints.Add(c);
             CalculateTimeline();
         }
 
@@ -111,11 +103,9 @@ namespace Model
         {
             Timeline = new int[7, 2];
 
-            foreach (var preferTime in prefers)
-                this[preferTime.time] = -1;
-
-            foreach (var busyTime in busies)
-                this[busyTime.time] = 2;
+            foreach (var cons in constraints)
+                if (cons.isBusy == false)
+                    this[cons.time] = cons.isBusy == false ? -1 : 2;
 
             foreach (var shiftDate in shifts)
             {
@@ -153,11 +143,8 @@ namespace Model
             foreach (var shift in shifts)
                 res += shift.ToString() + "\n";
 
-            foreach (var busy in busies)
-                res += busy.ToString() + "\n";
-
-            foreach (var prefer in prefers)
-                res += prefer.ToString() + "\n";
+            foreach (var cons in constraints)
+                res += cons.ToString() + "\n";
 
             foreach (var op in operations)
                 res += op.ToString() + "\n";

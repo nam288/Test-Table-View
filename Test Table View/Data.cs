@@ -75,7 +75,7 @@ namespace Model
 
         public void GenerateOperation(Random rand)
         {
-            foreach (var time in Time.AllTime())
+            foreach (var time in Time.AllWorkingTime())
             {
                 var op = new Operation(time);
                 for (int i = 1; i<= rand.Next(5); i++)
@@ -94,25 +94,29 @@ namespace Model
             foreach (var doctor in doctors)
                 Console.WriteLine(doctor);
         }
-        
-        public Department DepartmentOf(int doctor)
+
+        public Doctor GetDoctor(string name)
         {
-            return depts[indexDepts[doctors[doctor].dep]];
+            return doctors[indexDoctors[name]];
         }
 
-        public bool SameDep(int d1, int d2)
-        {
-            return doctors[d1].dep == doctors[d2].dep;
-        }
-        // new testttttt
+        public Doctor GetDoctor(int indexDoctor) => doctors[indexDoctor];
+
+        public Department DepartmentOf(int indexDoctor) => depts[indexDepts[GetDoctor(indexDoctor).dep]];
+
+        public Department GetDepartment(string nameDept) => depts[indexDepts[nameDept]];
+
+        public Department GetDepartment(Doctor doctor) => GetDepartment(doctor.dep);
+
+        public bool SameDep(int d1, int d2) => doctors[d1].dep == doctors[d2].dep;
+        
         public List<int> Freeman(Time t)
         {
-            var d = from doc in doctors
-                    where doc[t] <= 1
-                    orderby doc[t]
-                    select doc.index;
+            var d = from doctor in doctors
+                    where doctor[t] <= 1
+                    orderby doctor[t]
+                    select doctor.index;
             return d.ToList();
-
         }
 
         public void Write()

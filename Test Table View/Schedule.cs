@@ -4,112 +4,147 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Test_Table_View;
+using System.Drawing;
 
 namespace Model
 {
     class Schedule
     {
-        //public static readonly Dictionary<int, Dictionary<int, int>> nDoc = new Dictionary<int, Dictionary<int, int>>();
-
-        public static readonly int[,] amount = new int[7, 2];
-        public List<List<List<int>>> _schedule = new List<List<List<int>>>();
-        public bool[,,] primary = new bool[7, 2, 6];
+        public readonly int[][] amount = new int[7][];
+        public bool[][][] isPrimary = new bool[7][][];
+        public List<int>[][] _schedule = new List<int>[7][];
         public Data _data;
-        public Form1 _form;
+        public CustomForm _form;
         public int cntSuccess = 0;
 
-        public Schedule(Data data, Form1 form1)
+        public Schedule(Data data, CustomForm form)
         {
-            _form = form1;
+            _form = form;
             _data = data;
-            for (int i = 0; i <= 6; i++)
+
+            // init amount
+            for (int date = 0; date <= 6; date++)
+                amount[date] = new int[2];
+
+            for (int date = 1; date <= 5; date++)
+                for (int part = 0; part <= 1; part++)
+                    amount[date][part] = 5 - part;
+            amount[1][1] = 5;
+
+            // init isPrimary
+            for (int date = 0; date <= 6; date++)
             {
-                List<List<int>> tmp = new List<List<int>>();
-                for (int j = 0; j <= 1; j++)
-                    tmp.Add(new List<int>());
-                _schedule.Add(tmp);
+                var inDate = new bool[2][];
+                for (int part = 0; part <= 1; part++)
+                {
+                    inDate[part] = new bool[amount[date][part]];
+                    for (int i = 0; i < inDate[part].Length; i++)
+                        inDate[part][i] = true;
+                }
+                isPrimary[date] = inDate;
             }
 
-           
-
-            for (int i = 1; i <= 5; i++)
-                for (int j = 0; j <= 1; j++)
-                    amount[i, j] = 5 - j;
+            // init real schedule
+            for (int date = 0; date <= 6; date++)
+            {
+                _schedule[date] = new List<int>[2];
+                for (int part = 0; part <= 1; part++)
+                    _schedule[date][part] = new List<int>();
+            }
         }
 
-        public void Set(Time t, int index, int value)
+        public void Print()
         {
-            Console.WriteLine("In set func {0}", index);
-            if (primary[t.date,t.part, index])
+            Time.AllWorkingTime().ForEach(time =>
             {
-                _schedule[t.date][t.part].Add(value);
-                _form.Set(t, index, value);
-            } else
+                Console.WriteLine(time);
+                foreach (var i in this[time])
+                    Console.Write("{0} ", _data.GetDoctor(i).name);
+                Console.WriteLine();
+            });
+        }
+
+        public void SetSchedule(Time t, int index, int value)
+        {
+            if (isPrimary[t.date][t.part][index])
             {
                 _schedule[t.date][t.part][index] = value;
+                _form.Set(t, index, value);
             }
-            primary[t.date, t.part, index] = true;
+            else
+            {
+                _schedule[t.date][t.part][index] = value;
+                isPrimary[t.date][t.part][index] = true;
+            }
         }
 
         public List<int> this[Time t]
         {
             get => _schedule[t.date][t.part];
-            set
-            {
-                _schedule[t.date][t.part].Clear();
-                Console.WriteLine(t);
-                foreach (var i in value)
-                    Console.WriteLine(i);
-                Console.WriteLine();
-                for (int i = 0; i < Math.Min(value.Count, amount[t.date,t.part]); i++)
-                {
-                    Console.Write("@@");
-                    Console.WriteLine(i);
-
-                    primary[t.date, t.part, i] = true;
-                    if (i < value.Count)
-                    {
-                        Set(t, i, value[i]);
-                    }
-                    else
-                        Set(t, i, -1);
-                }
-                
-            }
+            set => _schedule[t.date][t.part] = value;
         }
 
-        public List<int> this[int date, int part]
+        public List<int> this[int date, int part] => this[new Time(date, part)];
+
+        public ComboBoxItem ColorComboBoxItem(Time time, int indexDoctor, int indexList)
         {
-            get => this[new Time(date, part)];
-            set => this[new Time(date, part)] = value;
+            Doctor doctor = _data.GetDoctor(indexDoctor);
+            Color color = new Color();
+            switch (doctor[time])
+            {
+                case -1:
+                    color = Color.Blue;
+                    break;
+                case 0:
+                    color = Color.Green;
+                    break;
+                case 1:
+                    color = Color.OrangeRed;
+                    break;
+            }
+            return new ComboBoxItem(doctor.name, indexDoctor.ToString(), color);
+            
+        }
+
+        public void Refresh()
+        {
+            Time.AllWorkingTime().ForEach(t =>
+            {
+                for (int i = 0; i < this[t].Count; i++)
+                    _form.Set(t, i, this[t][i]);
+
+                for (int i = this[t].Count; i < amount[t.date][t.part]; i++)
+                    _form.GetComboBox(t, i).Items.Clear();
+            });
+
+            Time.AllWorkingTime().ForEach(t =>
+            {               
+                List<ComboBoxItem> addItems = new List<ComboBoxItem>();
+                AvailableMen(t).ForEach(i =>
+                {
+                    addItems.Add(ColorComboBoxItem(t, i, addItems.Count + 1));
+                });
+
+                for (int i = 0; i < this[t].Count; i++)
+                    _form.GetComboBox(t, i).Items.AddRange(addItems.Cast<object>().ToArray());
+            });
         }
 
         public void Main()
         {
-
             var watch = System.Diagnostics.Stopwatch.StartNew();
+            Time.AllWorkingTime().ForEach(time => this[time].Clear());
             RunTime(new Time(1, 0));
 
-            for (int i = 1; i <= 5; i++)
-                for (int j = 0; j <= 1; j++)
-                {
-                    Console.Write(j);
-                    this[i, j].ForEach(d => Console.Write("@"));
-                    Console.WriteLine();
-                }
-            Console.Read();
-            for (int i = 0; i < 1000; i++)
+            for (int i = 0; i < 500; i++)
             {
                 Move();
                 Filling();
             }
-            for (int i = 1; i <= 5; i++)
-                for (int j = 0; j <= 1; j++)
-                {
-                    Console.Write(j);
-                    this[i, j].ForEach(d => Console.Write("@"));
-                    Console.WriteLine();
-                }
+
+            Print();
+            Refresh();
+
             watch.Stop();
             Console.WriteLine(watch.ElapsedMilliseconds);
             Console.WriteLine(cntSuccess);
@@ -117,10 +152,22 @@ namespace Model
 
         public void RunTime(Time time)
         {
+            Console.WriteLine("Start calculate {0}:", time);
+            Console.WriteLine("List candidate:");
+            foreach (var i in AvailableMen(time))
+                Console.Write("{0} ", i);
+            Console.WriteLine();
+
             bool finish = false;
             List<int> res = new List<int>();
 
-            Run(FreemanInTime(time), time, 1, 0, ref finish, ref res);
+            Run(AvailableMen(time), time, 0, 0, ref finish, ref res);
+
+            Console.WriteLine("End calculate {0}:", time);
+            Console.WriteLine("Result:");
+            foreach (var i in res)
+                Console.Write("{0} ", i);
+            Console.WriteLine();
 
             this[time] = res;
 
@@ -136,11 +183,11 @@ namespace Model
                 return;
 
             // update if possible
-            if (res.Count < ithDoctor - 1)
+            if (res.Count < this[time].Count)
                 res = new List<int>(this[time]);
 
             // fille enough doctor
-            if (ithDoctor > amount[time.date, time.part])
+            if (ithDoctor == amount[time.date][time.part])
             {
                 isFinish = true;
                 return;
@@ -155,7 +202,7 @@ namespace Model
                     Console.WriteLine("{0} Choose {1}", new string(' ', ithDoctor), candidate);
                     Run(freeman, time, ithDoctor + 1, k + 1, ref isFinish, ref res);
                     if (isFinish) return;
-                    this[time].RemoveAt(this[time].Count - 1);
+                    this[time].Remove(candidate);
                     Console.WriteLine("{0} Unchoose {1}", new string(' ', ithDoctor), candidate);
                 }
             }
@@ -166,7 +213,7 @@ namespace Model
             var miss = Missing();
             Random rand = new Random();
             var time = Time.WorkingTimeRand();
-            if (this[time].Any())
+            if (_schedule[time.date][time.part].Any())
             {
                 int index = rand.Next(this[time].Count);
                 int candidate = this[time][index];
@@ -197,26 +244,22 @@ namespace Model
         }
 
         public List<Time> Missing()
-        {
-            return Time.AllTime().Where(t => this[t].Count < amount[t.date, t.part]).ToList();
-        }
+            => Time.AllWorkingTime()
+                   .Where(t => this[t].Count < amount[t.date][t.part])
+                   .ToList();
 
-        public List<int> FreemanInTime(Time time)
-        {
-            return _data.Freeman(time)
-                .Where(d => Available(d, time))
-                .ToList();
-        }
+        public List<int> AvailableMen(Time time)
+            => _data.Freeman(time)
+                    .Where(d => Available(d, time))
+                    .ToList();
 
         public bool WorkedSameDay(int doctor, Time time)
-        {
-            return this[time.Opposite()].Contains(doctor);
-        }
+            => this[time.Opposite()].Contains(doctor);
 
         public bool WorkedSamePart(int doctor, Time time)
-        {
-            return Enumerable.Range(1, 5).Any(i => this[i, time.part].Contains(doctor));
-        }
+            => Enumerable.Range(1, 5)
+                         .Any(i => this[i, time.part]
+                         .Contains(doctor));
 
         public bool WorkedNearly(int doctor, Time time)
         {
@@ -230,14 +273,13 @@ namespace Model
         }
 
         public int FreemanDep(int doctor, Time time)
-        {
-            return _data.DepartmentOf(doctor).doctors
-                .Count(d => d[time] <= 1);
-        }
+            => _data.DepartmentOf(doctor).doctors
+                    .Count(d => d[time] <= 1);
 
         public int WorkerDepTime(int doctor, Time time)
         {
             return this[time]
+                .Where(d => d > -1)
                 .Where(d => _data.SameDep(d, doctor))
                 .Count();
         }
@@ -256,13 +298,13 @@ namespace Model
         {
             if (this[time].Contains(doctor))
             {
-                Console.WriteLine("Cant choose doctor {0,-2}. Reason: SAME TIME", doctor);
+                Console.WriteLine("{0,-2} SAME TIME", doctor);
                 return false;
             }
 
             if (WorkedSameDay(doctor, time))
             {
-                Console.WriteLine("Cant choose doctor {0,-2}. Reason: SAME DAY", doctor);
+                Console.WriteLine("{0,-2} SAME DAY", doctor);
                 return false;
             }
 
@@ -270,31 +312,31 @@ namespace Model
             {
                 if (WorkedSamePart(doctor, time))
                 {
-                    Console.WriteLine("Cant choose doctor {0,-2}. Reason: SAME PART", doctor);
+                    Console.WriteLine("{0,-2} SAME PART", doctor);
                     return false;
                 }
                 if (WorkedNearly(doctor, time))
                 {
-                    Console.WriteLine("Cant choose doctor {0,-2}. Reason: NEARLY", doctor);
+                    Console.WriteLine("={0,-2} NEARLY", doctor);
                     return false;
                 }
             }
 
             if (WorkerInDepWeek(_data.DepartmentOf(doctor)) == _data.DepartmentOf(doctor).maxWorkingWeekly)
             {
-                Console.WriteLine("Cant choose doctor {0,-2}. Reason: DEP {1} ENOUGH", doctor, _data.DepartmentOf(doctor).name);
+                Console.WriteLine("{0,-2} DEP {1} ENOUGH", doctor, _data.DepartmentOf(doctor).name);
                 return false;
             }
 
             if (FreemanDep(doctor, time) < 2)
             {
-                Console.WriteLine("Cant choose doctor {0,-2}. Reason: DEP {1} NOBODY ", doctor, _data.DepartmentOf(doctor).name);
+                Console.WriteLine("{0,-2} DEP {1} NOBODY ", doctor, _data.DepartmentOf(doctor).name);
                 return false;
             }
 
             if (WorkerDepTime(doctor, time) >= 2 - time.part)
             {
-                Console.WriteLine("Cant choose doctor {0,-2}. Reason: DEP {1} ENOUGH", doctor, _data.DepartmentOf(doctor).name);
+                Console.WriteLine("{0,-2} DEP {1} ENOUGH", doctor, _data.DepartmentOf(doctor).name);
                 return false;
             }
             return true;
