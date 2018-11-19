@@ -14,7 +14,6 @@ namespace Model
         public int maxWorking = 3, maxWorkingPref = 3, index;
         public List<Shift> shifts = new List<Shift>();
         public List<TimeConstraint> constraints = new List<TimeConstraint>();
-        
         public List<Operation> operations = new List<Operation>();
 
         public int[,] Timeline { get; set; } = new int[7, 2];

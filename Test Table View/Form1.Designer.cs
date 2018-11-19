@@ -30,7 +30,6 @@ namespace Test_Table_View
         /// </summary>
         public void InitializeComponent()
         {
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             this.mainPnl = new System.Windows.Forms.TableLayoutPanel();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
@@ -41,11 +40,6 @@ namespace Test_Table_View
             this.doctorsTab = new System.Windows.Forms.TabPage();
             this.splitContainer = new System.Windows.Forms.SplitContainer();
             this.treeView = new System.Windows.Forms.TreeView();
-            this.dataGridView1 = new System.Windows.Forms.DataGridView();
-            this.isPermanent = new System.Windows.Forms.DataGridViewCheckBoxColumn();
-            this.Type = new System.Windows.Forms.DataGridViewComboBoxColumn();
-            this.date = new System.Windows.Forms.DataGridViewComboBoxColumn();
-            this.part = new System.Windows.Forms.DataGridViewComboBoxColumn();
             this.mainPnl.SuspendLayout();
             this.tabControl1.SuspendLayout();
             this.scheduleTab.SuspendLayout();
@@ -53,9 +47,7 @@ namespace Test_Table_View
             this.doctorsTab.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
             this.splitContainer.Panel1.SuspendLayout();
-            this.splitContainer.Panel2.SuspendLayout();
             this.splitContainer.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.SuspendLayout();
             // 
             // mainPnl
@@ -174,10 +166,6 @@ namespace Test_Table_View
             // splitContainer.Panel1
             // 
             this.splitContainer.Panel1.Controls.Add(this.treeView);
-            // 
-            // splitContainer.Panel2
-            // 
-            this.splitContainer.Panel2.Controls.Add(this.dataGridView1);
             this.splitContainer.Size = new System.Drawing.Size(1150, 781);
             this.splitContainer.SplitterDistance = 383;
             this.splitContainer.TabIndex = 0;
@@ -191,69 +179,6 @@ namespace Test_Table_View
             this.treeView.Name = "treeView";
             this.treeView.Size = new System.Drawing.Size(377, 775);
             this.treeView.TabIndex = 0;
-            // 
-            // dataGridView1
-            // 
-            this.dataGridView1.AccessibleRole = System.Windows.Forms.AccessibleRole.None;
-            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            this.dataGridView1.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
-            this.dataGridView1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridView1.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this.isPermanent,
-            this.Type,
-            this.date,
-            this.part});
-            this.dataGridView1.Location = new System.Drawing.Point(3, 3);
-            this.dataGridView1.Name = "dataGridView1";
-            this.dataGridView1.RowTemplate.Height = 28;
-            this.dataGridView1.Size = new System.Drawing.Size(757, 775);
-            this.dataGridView1.TabIndex = 0;
-            // 
-            // isPermanent
-            // 
-            this.isPermanent.HeaderText = "Tạm thời";
-            this.isPermanent.Name = "isPermanent";
-            this.isPermanent.Resizable = System.Windows.Forms.DataGridViewTriState.True;
-            this.isPermanent.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
-            // 
-            // Type
-            // 
-            this.Type.DisplayStyle = System.Windows.Forms.DataGridViewComboBoxDisplayStyle.ComboBox;
-            this.Type.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
-            this.Type.HeaderText = "Yêu cầu";
-            this.Type.Items.AddRange(new object[] {
-            "Bận",
-            "Mong muốn"});
-            this.Type.Name = "Type";
-            this.Type.Resizable = System.Windows.Forms.DataGridViewTriState.True;
-            this.Type.Sorted = true;
-            this.Type.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
-            // 
-            // date
-            // 
-            this.date.DisplayStyle = System.Windows.Forms.DataGridViewComboBoxDisplayStyle.ComboBox;
-            this.date.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
-            this.date.HeaderText = "Ngày";
-            this.date.Items.AddRange(new object[] {
-            "Thứ hai",
-            "Thứ ba",
-            "Thứ tư",
-            "Thứ năm",
-            "Thứ sáu"});
-            this.date.Name = "date";
-            this.date.Resizable = System.Windows.Forms.DataGridViewTriState.True;
-            this.date.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
-            // 
-            // part
-            // 
-            this.part.DisplayStyle = System.Windows.Forms.DataGridViewComboBoxDisplayStyle.ComboBox;
-            this.part.HeaderText = "Buổi";
-            this.part.Name = "part";
-            this.part.Resizable = System.Windows.Forms.DataGridViewTriState.True;
-            this.part.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
             // 
             // CustomForm
             // 
@@ -272,10 +197,8 @@ namespace Test_Table_View
             this.tableLayoutPanel.ResumeLayout(false);
             this.doctorsTab.ResumeLayout(false);
             this.splitContainer.Panel1.ResumeLayout(false);
-            this.splitContainer.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).EndInit();
             this.splitContainer.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -292,11 +215,6 @@ namespace Test_Table_View
         public System.Windows.Forms.Button runBtn;
         private System.Windows.Forms.SplitContainer splitContainer;
         private System.Windows.Forms.TreeView treeView;
-        private System.Windows.Forms.DataGridView dataGridView1;
-        private System.Windows.Forms.DataGridViewCheckBoxColumn isPermanent;
-        private System.Windows.Forms.DataGridViewComboBoxColumn Type;
-        private System.Windows.Forms.DataGridViewComboBoxColumn date;
-        private System.Windows.Forms.DataGridViewComboBoxColumn part;
     }
 }
 
